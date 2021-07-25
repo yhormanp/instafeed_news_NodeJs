@@ -20,9 +20,8 @@ exports.lectura_schema = Joi.object({
     //   .max(255),
     publishedAt: Joi.date().less('now')
         .allow(null).allow(''),
-    url: Joi.string()
-        .allow(null).allow(''),
-    // .pattern(new RegExp('^[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'))
+    url: Joi.alternatives().conditional('publishedAt', {is: null, then: Joi.string()
+        .allow(null).allow(''), otherwise: Joi.string().required()}),
     keywords: Joi.array()
         .items(Joi.string())
         .min(1)
