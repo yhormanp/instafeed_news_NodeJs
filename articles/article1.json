@@ -1,0 +1,11 @@
+{
+    "id": "abc1",
+    "title": "mytitle",
+    "author": "authorName",
+    "modifiedAt": "07/24/2021",
+    "publishedAt": null,
+    "url": null,
+    "keywords": ["palabra1", "palabra2", "palabra3"],
+    "readMins": 20,
+    "source": "ARTICLE"
+}
