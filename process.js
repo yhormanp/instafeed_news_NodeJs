@@ -49,6 +49,7 @@ const asyncValidation = (fileLocaltion) => {
 }
 
 const appendToAFile = async (fileLocation, content) => {
+  
   fs.appendFile(__dirname + "/" + fileLocation, content, err => {
     if (err) {
       console.error(err)

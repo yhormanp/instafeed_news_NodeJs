@@ -1,77 +1,39 @@
 /* eslint-disable no-undef */
-const http = require("http");
-const url = require("url");
-const fs = require('fs')
+const express = require('express');
+const fs = require('fs');
+const app = express();
+const port = 8080;
 
-let dataInMemory = [];
+app.get('/articles', (req, res) => {
+    const fileLocaltion = '/db.json'
+    let dbData = fs.readFileSync(__dirname + fileLocaltion, 'utf8')
+    console.log('validation', dbData);
+    dataInMemory = JSON.parse(`[${dbData.slice(0, dbData.length -1)}]`);
+    res.send(dataInMemory);
+})
 
-const server = http.createServer(function (req, res) {
-  let parsedURL = url.parse(req.url, true);
-  let path = parsedURL.pathname;
-  // parsedURL.pathname  parsedURL.query
-  // standardize the requested url by removing any '/' at the start or end
-  // '/folder/to/file/' becomes 'folder/to/file'
-  path = path.replace(/^\/+|\/+$/g, "");
-  console.log('path', path);
-  let qs = parsedURL.query;
-  let headers = req.headers;
-  let method = req.method.toLowerCase();
+app.get('/articles/:id', (req, res) => {
+    const idParam = req.params.id ? req.params.id : 0;
+    const fileLocaltion = '/db.json'
+    let dbData = fs.readFileSync(__dirname + fileLocaltion, 'utf8')
+    dataInMemory = JSON.parse(`[${dbData.slice(0, dbData.length -1)}]`);
 
-  req.on("data", function () {
-    console.log("got some data");
-    
-  });
-  req.on("end", function () {
-    //request part is finished... we can send a response now
-    console.log("send a response");
-    let sections = path.split('/');
-    let data = {
-      path: path,
-      id: sections.length > 1 ? sections[1] : 0,
-      queryString: qs,
-      headers: headers,
-      method: method
-    };
+    if (idParam !== 0) {
+        const recordFound = dataInMemory.find((record) => {
+            return record.id === idParam
+        });
 
-    console.log('validation', data);
-    //we will use the standardized version of the path
-    let route =
-      typeof routes[sections[0]] !== "undefined" ? routes[sections[0]] : routes["notFound"];
-
-    //pass data incase we need info about the request
-    //pass the response object because router is outside our scope
-    route(data, res);
-  });
-});
-
-server.listen(3001, function () {
-  const fileLocaltion = '/db.json'
-  let dbData = fs.readFileSync(__dirname + fileLocaltion, 'utf8')
-  dataInMemory = [JSON.parse(dbData)];
-  console.log("Listening on port 3001");
-});
-
-let routes = {
-  "articles": function (data, res) {
-    // this function called if the path is 'Articles'
-    let payloadStr = JSON.stringify(dataInMemory);
-
-    if (data.id !== 0) {
-      const recordFound = dataInMemory.find((record) => {
-        return record.id === data.id
-      });
-
-      if (recordFound) {
-        payloadStr = JSON.stringify(recordFound);
-      } else {
-        payloadStr = "Record not found";
-      }
+        if (recordFound) {
+            res.send(recordFound);
+        } else {
+            res.status(404).send('the id sent does not exists or its invalid')
+        }
+    } else {
+        res.status(404).send('the id sent does not exists or its invalid')
     }
 
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.writeHead(200);
-    res.write(payloadStr);
-    res.end("\n");
-  }
-};
+})
+
+app.listen(port, () => {
+    console.log(`the application is running on the port ${port}`)
+})
