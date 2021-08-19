@@ -7,11 +7,9 @@ exports.lectura_schema = Joi.object({
         .max(36)
         .required(),
     title: Joi.string()
-        .alphanum()
         .min(3)
         .max(255),
     author: Joi.string()
-        .alphanum()
         .min(3)
         .max(100),
     modifiedAt: Joi.date().less('now'),

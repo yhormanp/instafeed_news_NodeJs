@@ -31,17 +31,18 @@ const asyncValidation = (fileLocaltion) => {
     // getlist of files 
     const readFile = util.promisify(fs.readFile)
     readFile(fileLocaltion).then((fileContent) => {
-      const response = lectura_schema.validate(JSON.parse(fileContent))
-      if (response.error) {
-        // write data in invalid.json 
-        appendToAFile("invalid.json", JSON.stringify(response.value) + ",")
-        callback(response.error, false);
-        // throw new Error(response.error)
-      } else {
-        // write data in db.json
-        appendToAFile("db.json", JSON.stringify(response.value) + ",")
-        callback(null, true);
-      }
+      // const response = lectura_schema.validate(JSON.parse(fileContent))
+      // if (response.error) {
+      //   // write data in invalid.json 
+      //   appendToAFile("invalid.json", JSON.stringify(response.value) + ",")
+      //   callback(response.error, false);
+      //   // throw new Error(response.error)
+      // } else {
+      //   // write data in db.json
+      //   appendToAFile("db.json", JSON.stringify(response.value) + ",")
+      //   callback(null, true);
+      // }
+      validateArticleSchema(fileContent, callback);
     }).catch((error) => {
       console.log('error', error)
     })
@@ -49,7 +50,7 @@ const asyncValidation = (fileLocaltion) => {
 }
 
 const appendToAFile = async (fileLocation, content) => {
-  
+
   fs.appendFile(__dirname + "/" + fileLocation, content, err => {
     if (err) {
       console.error(err)
@@ -57,7 +58,23 @@ const appendToAFile = async (fileLocation, content) => {
   })
 }
 
-const validateSeveralFiles = async (folderWithArticles) => {
+exports.validateArticleSchema = (fileContent, callback) => {
+  const response = lectura_schema.validate(JSON.parse(fileContent))
+  if (response.error) {
+    // write data in invalid.json 
+    appendToAFile("invalid.json", JSON.stringify(response.value) + ",")
+    callback(response.error, false);
+    // throw new Error(response.error)
+  } else {
+    // write data in db.json
+    appendToAFile("db.json", JSON.stringify(response.value) + ",")
+    callback(null, true);
+  }
+
+
+}
+
+exports.validateSeveralFiles = async (folderWithArticles) => {
   try {
     // getlist of files  files
     const readDir = util.promisify(fs.readdir)
@@ -69,7 +86,7 @@ const validateSeveralFiles = async (folderWithArticles) => {
       functionsToExecute.push(asyncValidation(`./articles/${element}`));
     });
 
-    async.parallel(functionsToExecute, (err, results) =>{
+    async.parallel(functionsToExecute, (err, results) => {
       console.log('errors found', err);
       console.log('results found', results);
     })
@@ -79,4 +96,7 @@ const validateSeveralFiles = async (folderWithArticles) => {
 }
 
 // validation('/lectura_validacion_archivos/article.json');
-validateSeveralFiles('./articles');
+// validateSeveralFiles('./articles');
+
+
+
