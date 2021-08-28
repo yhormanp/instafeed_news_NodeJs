@@ -23,8 +23,7 @@ exports.lectura_schema = Joi.object({
     keywords: Joi.array()
         .items(Joi.string())
         .min(1)
-        .max(3)
-        .required(),
+        .max(3),
     readMins: Joi.number()
         .integer()
         .min(1)
