@@ -10,7 +10,6 @@ const validationSync = async (fileLocaltion) => {
   try {
     const data = fs.readFileSync(__dirname + fileLocaltion, 'utf8')
     const response = await lectura_schema.validate(JSON.parse(data))
-    console.log('response', response.value)
     if (response.error) {
 
       // write data in invalid.json 
