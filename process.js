@@ -3,14 +3,23 @@ const async = require('async')
 const fs = require('fs')
 const util = require('util')
 const {
-  lectura_schema
+  lectura_schema,
+  idSchema,
+  titleSchema,
+  authorSchema,
+  modifiedAtSchema,
+  publishedAtSchema,
+  urlSchema,
+  keywordsSchema,
+  readMinsSchema,
+  sourceSchema
+
 } = require('./validations/lectura_archivos.validation')
 
 const validationSync = async (fileLocaltion) => {
   try {
     const data = fs.readFileSync(__dirname + fileLocaltion, 'utf8')
     const response = await lectura_schema.validate(JSON.parse(data))
-    console.log('response', response.value)
     if (response.error) {
 
       // write data in invalid.json 
@@ -70,7 +79,72 @@ exports.validateArticleSchema = (fileContent, callback) => {
     appendToAFile("db.json", JSON.stringify(response.value) + ",")
     callback(null, true);
   }
+}
 
+exports.validatePropertySchema = (objectReceived, callback) => {
+  console.log('validting property', objectReceived)
+  // validae every property sent
+  let listOfErrors = [];
+  let response = null;
+  for (const property in objectReceived) {
+    switch (property) {
+      case 'id':
+        response = idSchema.validate(objectReceived[property]);
+        break;
+      case 'title':
+        response = titleSchema.validate(objectReceived[property]);
+        break;
+      case 'author':
+        response = authorSchema.validate(objectReceived[property]);
+        break;
+      case 'modifiedAt':
+        response = modifiedAtSchema.validate(objectReceived[property]);
+        break;
+      case 'PublishedAt':
+        response = publishedAtSchema.validate(objectReceived[property]);
+        break;
+      case 'url':
+        response = urlSchema.validate(objectReceived[property]);
+        break;
+      case 'keywords':
+        response = keywordsSchema.validate(objectReceived[property]);
+        break;
+      case 'readMins':
+        response = readMinsSchema.validate(objectReceived[property]);
+        break;
+      case 'source':
+        response = sourceSchema.validate(objectReceived[property]);
+        break;
+    }
+
+    if (response.error) {
+      listOfErrors.push({
+        status: 'error',
+        message: response.error
+      });
+    }
+  }
+
+  if (listOfErrors.length >= 1) {
+    callback(listOfErrors, false);
+  } else {
+    callback(null, true);
+  }
+}
+
+exports.replaceArticleInMemory = (datainMemory, articleUpdated) => {
+  console.log('checking datainMemory', datainMemory, articleUpdated);
+  const articleIndex = datainMemory.findIndex((article) => {
+    console.log('values', article._id.toString(), articleUpdated._id.toString())
+    // console.log('is equal', article._id.toString() === articleUpdated._id.toString(), article._id.toString() == articleUpdated._id.toString())
+    return article._id.toString() === articleUpdated._id.toString()
+  });
+  console.log('checking article index', articleIndex);
+  if( articleIndex !== -1){
+    datainMemory[articleIndex] = articleUpdated;
+  }
+
+  console.log('checking data in memorr', datainMemory)
 
 }
 
@@ -97,6 +171,3 @@ exports.validateSeveralFiles = async (folderWithArticles) => {
 
 // validation('/lectura_validacion_archivos/article.json');
 // validateSeveralFiles('./articles');
-
-
-

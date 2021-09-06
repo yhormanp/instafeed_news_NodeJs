@@ -12,13 +12,11 @@ const server = http.createServer(function (req, res) {
   // standardize the requested url by removing any '/' at the start or end
   // '/folder/to/file/' becomes 'folder/to/file'
   path = path.replace(/^\/+|\/+$/g, "");
-  console.log('path', path);
   let qs = parsedURL.query;
   let headers = req.headers;
   let method = req.method.toLowerCase();
 
   req.on("data", function () {
-    console.log("got some data");
     
   });
   req.on("end", function () {
@@ -33,7 +31,6 @@ const server = http.createServer(function (req, res) {
       method: method
     };
 
-    console.log('validation', data);
     //we will use the standardized version of the path
     let route =
       typeof routes[sections[0]] !== "undefined" ? routes[sections[0]] : routes["notFound"];
