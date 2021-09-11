@@ -2,6 +2,7 @@
 const async = require('async')
 const fs = require('fs')
 const util = require('util')
+const { nameSchema, articlesSchema } = require('./validations/autores.validation')
 const {
   lectura_schema,
   idSchema,
@@ -132,20 +133,45 @@ exports.validatePropertySchema = (objectReceived, callback) => {
   }
 }
 
+exports.validatePropertySchemaAuthor = (objectReceived, callback) => {
+  // validae every property sent
+  let listOfErrors = [];
+  let response = null;
+  for (const property in objectReceived) {
+    switch (property) {
+      case 'name':
+        response = nameSchema.validate(objectReceived[property]);
+        break;
+      case 'articles':
+        response = articlesSchema.validate(objectReceived[property]);
+        break;
+    }
+
+    if (response.error) {
+      listOfErrors.push({
+        status: 'error',
+        message: response.error
+      });
+    }
+  }
+
+  if (listOfErrors.length >= 1) {
+    callback(listOfErrors, false);
+  } else {
+    callback(null, true);
+  }
+}
+
 exports.replaceArticleInMemory = (datainMemory, articleUpdated) => {
   console.log('checking datainMemory', datainMemory, articleUpdated);
   const articleIndex = datainMemory.findIndex((article) => {
     console.log('values', article._id.toString(), articleUpdated._id.toString())
-    // console.log('is equal', article._id.toString() === articleUpdated._id.toString(), article._id.toString() == articleUpdated._id.toString())
     return article._id.toString() === articleUpdated._id.toString()
   });
   console.log('checking article index', articleIndex);
   if( articleIndex !== -1){
     datainMemory[articleIndex] = articleUpdated;
   }
-
-  console.log('checking data in memorr', datainMemory)
-
 }
 
 exports.validateSeveralFiles = async (folderWithArticles) => {

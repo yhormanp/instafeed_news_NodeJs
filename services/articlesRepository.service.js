@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const Articles = require('../models/articles');
+const { Articles } = require('../models/articles');
 
 
 exports.getArticles = async (id) => {

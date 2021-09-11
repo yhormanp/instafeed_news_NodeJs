@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -33,4 +34,4 @@ const articleSchema = new Schema({
 
 const Articles = mongoose.model('article', articleSchema)
 
-module.exports = Articles;
+module.exports = { Articles };
