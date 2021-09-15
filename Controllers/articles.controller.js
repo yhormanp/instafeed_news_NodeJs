@@ -22,6 +22,8 @@ const {
 // } = require("./authors.controller");
 
 const articlesGET = async (req, res) => {
+
+  
   const listOfArticles = await getArticles();
   if (listOfArticles && listOfArticles.length > 0) {
     res.status(201).send(listOfArticles);
@@ -104,9 +106,9 @@ const articlesGETId = async (req, res) => {
   const idParam = req.params.id ? req.params.id : null;
   const listOfArticles = await getArticles(idParam);
   if (listOfArticles.length > 0) {
-    res.status(201).send(listOfArticles);
+    res.status(200).send(listOfArticles);
   } else {
-    res.status(201).send('There is not article to be shown');
+    res.status(200).send('There is not article to be shown');
   }
 }
 

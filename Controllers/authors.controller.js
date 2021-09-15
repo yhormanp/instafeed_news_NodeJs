@@ -121,7 +121,7 @@ const authorsDELETE = async (req, res) => {
 
 
 
-module.exports = {
+    module.exports = {
     authorsGET,
     authorsPOST,
     authorsGETId,
