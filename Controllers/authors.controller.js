@@ -2,20 +2,24 @@
 const {
     validatePropertySchemaAuthor
 } = require("../process");
+const { deleteArticlesByAuthor } = require("../services/articlesRepository.service");
 const {
-    getAuthors,
     saveAuthor,
     updateAuthor,
-    deleteAuthor
+    deleteAuthor,
+    getAuthorById
 } = require("../services/authorsRepository.service");
-const { autores_schema } = require("../validations/autores.validation");
+const {
+    autores_schema
+} = require("../validations/autores.validation");
+
 
 const authorsGET = async (req, res) => {
-    const listOfAuthors = await getAuthors();
+    const listOfAuthors = await getAuthorById();
     if (listOfAuthors && listOfAuthors.length > 0) {
-        res.status(201).send(listOfAuthors);
+        res.status(200).send(listOfAuthors);
     } else {
-        res.status(201).send('There is not authors to be shown');
+        res.status(200).send('There is not authors to be shown');
     }
 }
 
@@ -30,20 +34,20 @@ const authorsPOST = async (req, res) => {
     if (response.error) {
         res.status(400).send(response.error);
     } else {
-        const responseSaveAuthor =await saveAuthor(newAuthor);
-        if(responseSaveAuthor.error){
-            res.status(201).send('the author has been saved');
-        } else {
+        const responseSaveAuthor = await saveAuthor(newAuthor);
+        if (responseSaveAuthor.error) {
             res.status(400).send(responseSaveAuthor.message);
+        } else {
+            res.status(201).send('the author has been saved');
         }
-        
+
     }
 };
 
 
 const authorsGETId = async (req, res) => {
     const idParam = req.params.id ? req.params.id : null;
-    const listOfAuthors = await getAuthors(idParam);
+    const listOfAuthors = await getAuthorById(idParam);
     if (listOfAuthors.length > 0) {
         res.status(200).send(listOfAuthors);
     } else {
@@ -96,27 +100,32 @@ const authorsPUT = async (req, res) => {
 
 
 const authorsDELETE = async (req, res) => {
+    const idParam = req.params.id ? req.params.id : null;
     try {
-      const idParam = req.params.id ? req.params.id : null;
-      const response = await deleteAuthor(idParam);
-      console.log('response received', response);
-      if (response) {
-        res.status(204).send(`the author ${idParam} has been deleted`)
-      } else {
-        res.status(404).send(`the author ${idParam} does not exist`)
-      }
+        const authorDeletionResponse = await deleteAuthor(idParam);
+        // borrar todos los articulos asociados
+        const articlesDeletionReponse = await deleteArticlesByAuthor(idParam);
+
+        Promise.all([authorDeletionResponse, articlesDeletionReponse])
+        .then(() => {
+            res.status(204).send(`the author ${idParam} has been deleted`)
+        })
+        .catch((error) => {
+            res.status(404).send(`Error raised deleting the author ${idParam}, ${error}`)
+        })
+
     } catch (error) {
-      res.status(404).send(`Error raised deleting the author ${idParam}`)
+        res.status(404).send(`Error raised deleting the author ${idParam}, ${error}`)
     }
-  }
+}
 
 
 
 module.exports = {
-   authorsGET,
-   authorsPOST,
-   authorsGETId,
-   authorsPATCHId,
-   authorsPUT,
-   authorsDELETE
+    authorsGET,
+    authorsPOST,
+    authorsGETId,
+    authorsPATCHId,
+    authorsPUT,
+    authorsDELETE
 }

@@ -9,11 +9,17 @@ const {
   deleteArticle
 } = require("../services/articlesRepository.service");
 const {
-  saveAuthor
+  saveAuthor,
+  getAuthorByName,
+  addArticlesInAuthor,
+  removeArticlesInAuthor
 } = require("../services/authorsRepository.service");
 const {
   lectura_schema
 } = require("../validations/lectura_archivos.validation");
+// const {
+//   deleteArticleFromAuthorArticlesList
+// } = require("./authors.controller");
 
 const articlesGET = async (req, res) => {
   const listOfArticles = await getArticles();
@@ -38,14 +44,18 @@ const articlesPOST = async (req, res) => {
     source: req.body.source
   }
 
-  // first create the author and obtain the ID
-  const authorResponse = await saveAuthor({
-    name: req.body.author
-  });
-  if (authorResponse.error) {
-    res.status(400).send(authorResponse.message);
+
+  // update the articles property in the author object, only if it already exists
+  const responseProcessAuthor = await addArticleInAuthor({
+    name: req.body.author,
+    articles: [req.body.id]
+  }, )
+
+  console.log('response per author', responseProcessAuthor);
+  if (responseProcessAuthor.error) {
+    res.status(400).send(responseProcessAuthor.message);
   } else {
-    newArticle.author = authorResponse.author._id
+    newArticle.author = responseProcessAuthor.author._id
     const response = lectura_schema.validate(newArticle);
     if (response.error) {
       res.status(400).send(response.error);
@@ -55,6 +65,39 @@ const articlesPOST = async (req, res) => {
     }
   }
 };
+
+
+const addArticleInAuthor = async (author) => {
+  // validate if the author exist
+  const getAuthorResponse = await getAuthorByName(author);
+  console.log('getting author by name', getAuthorResponse);
+  if (getAuthorResponse.error) {
+    return await addArticlesInAuthor(getAuthorResponse.author._id, author.articles)
+      .then(() => {
+        return {
+          error: false,
+          author: getAuthorResponse.author
+        };
+      })
+      .catch((err) => {
+        console.log('error updating the Author data: ', err)
+        throw Error(err);
+      })
+  } else {
+    // if that author does not exists, then create a new author and return the author Id
+    console.log('saving new author', author);
+    return await saveAuthor(author)
+      .then((authorResult) => {
+        return authorResult;
+      })
+      .catch((err) => {
+        console.log('error saving the Author data: ', err)
+        throw Error(err);
+      })
+  }
+
+}
+
 
 
 const articlesGETId = async (req, res) => {
@@ -118,17 +161,26 @@ const articlesPUT = async (req, res) => {
 
 
 const articlesDELETE = async (req, res) => {
+  const idParam = req.params.id ? req.params.id : null;
   try {
-    const idParam = req.params.id ? req.params.id : null;
-    const response = await deleteArticle(idParam);
-    console.log('response received', response);
-    if (response) {
-      res.status(204).send(`the article ${idParam} has been deleted`)
-    } else {
-      res.status(404).send(`the article ${idParam} does not exist`)
+
+    const deleteArticleResponse = await deleteArticle(idParam);
+    console.log('response received', deleteArticleResponse);
+    if (deleteArticle !== null) {
+      const removeArticleResponse = removeArticlesInAuthor(deleteArticleResponse.author, idParam);
+
+      Promise.all([removeArticleResponse, deleteArticleResponse])
+        .then(() => {
+          res.status(204).send('the article has been deleted')
+        })
     }
+
+    // const deleteFromAuthorResponse = await deleteArticleFromAuthorArticlesList(deleteArticleResponse);
+
+
+
   } catch (error) {
-    res.status(404).send(`Error raised deleting the article ${idParam}`)
+    res.status(404).send(`Error raised deleting the article ${idParam}, ${error}`)
   }
 }
 
@@ -140,5 +192,6 @@ module.exports = {
   articlesGETId,
   articlesPATCHId,
   articlesPUT,
-  articlesDELETE
+  articlesDELETE,
+
 }

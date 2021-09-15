@@ -16,6 +16,15 @@ exports.getArticles = async (id) => {
 
 }
 
+exports.getArticlesByAuthor = async (authorId) => {
+  try {
+    const results = await Articles.find({author: authorId})
+    return results;
+  } catch (error) {
+    console.log('error while getting articles by author', error)
+  }
+}
+
 exports.saveArticle = async (article) => {
 
   const newArticle = new Articles(article);
@@ -49,9 +58,19 @@ exports.updateArticle = async (id, article) => {
   } else {
     return {status: false} 
   }
-  // const articleUpdated = await Articles.findOneAndUpdate({id: id} , article, {
- 
 
+}
+
+exports.deleteArticlesByAuthor = async ( authorId) => {
+  return await Articles.deleteMany({"author": authorId},
+  ).then((result) => {
+    console.log(`the Articles with the author ${authorId} have been deleted `, result);
+    return result;
+  })
+  .catch((err) => {
+    console.log(`Error deleting the Articles with author ${authorId}: `, err)
+    throw new Error(err);
+  })
 }
 
 exports.deleteArticle = async (id) => {
@@ -69,14 +88,14 @@ exports.deleteArticle = async (id) => {
     return await Articles.findByIdAndDelete(articleId)
       .then((result) => {
         console.log('the Article has been deleted ', result);
-        return true;
+        return result;
       })
       .catch((err) => {
         console.log('error deleting the Article data: ', err)
         throw new Error(err);
       })
   } else {
-    return false;
+    return null;
   }
 
 }

@@ -5,7 +5,9 @@ const {v4: uuidv4}= require('uuid');
 
 const authorSchema = new Schema ({
     _id: {
-        type: String, default: uuidv4()
+        type: String, default: function genUUID() {
+            return uuidv4()
+        }
     },
     name: {
         type: String,
