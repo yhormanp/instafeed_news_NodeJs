@@ -53,8 +53,11 @@ exports.modifiedAtSchema = Joi.date().less('now');
 exports.publishedAtSchema = Joi.date().less('now')
 .allow(null).allow('');
 
-exports.urlSchema = Joi.alternatives().conditional('publishedAt', {is: null, then: Joi.string()
-    .allow(null).allow(''), otherwise: Joi.string().required()});
+// exports.urlSchema = Joi.alternatives().conditional('publishedAt', {is: null, then: Joi.string()
+    // .allow(null).allow(''), otherwise: Joi.string().required()});
+
+exports.urlSchema = Joi.string()
+.allow(null).allow('');
 
 exports.keywordsSchema = Joi.array()
 .items(Joi.string())
