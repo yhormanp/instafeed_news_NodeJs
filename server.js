@@ -16,14 +16,19 @@ const {
   authorsPUT,
   authorsDELETE
 } = require('./Controllers/authors.controller');
-
+var cors = require('cors')
+const helmet = require("helmet");
 const {
   dbConnect
 } = require('./utils/dbConnect');
-const app = express();
 const port = 8080;
 
+const app = express();
+app.use(cors())
+app.use(helmet());
 app.use(express.json())
+
+
 app.get('/articles', articlesGET);
 app.get('/articles/:id', articlesGETId);
 app.post('/articles', articlesPOST);
