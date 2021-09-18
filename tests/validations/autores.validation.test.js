@@ -1,4 +1,4 @@
-const { autores_schema } = require("../validations/autores.validation");
+const { autores_schema } = require("../../validations/autores.validation");
 
 test('Given an author object when everything is ok, then it should return a success messge ', () => {
 

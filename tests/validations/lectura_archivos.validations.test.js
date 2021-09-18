@@ -1,4 +1,4 @@
-const { lectura_schema } = require("../validations/lectura_archivos.validation")
+const { lectura_schema } = require("../../validations/lectura_archivos.validation")
 
 
 

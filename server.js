@@ -46,7 +46,7 @@ app.use(express.json())
 
 app.get('/articles', articlesGET);
 app.get('/articles/:id', articlesGETId);
-app.post('/articles', auth.checkToken, auth.checkAdminRoles, articlesPOST);
+app.post('/articles', articlesPOST);
 app.patch('/articles/:id', articlesPATCHId);
 app.put('/articles/:id', auth.checkToken, auth.checkAdminRoles, articlesPUT);
 app.delete('/articles/:id', auth.checkToken, auth.checkAdminRoles, articlesDELETE)
