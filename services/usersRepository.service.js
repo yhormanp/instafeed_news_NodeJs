@@ -2,23 +2,27 @@
 const {
   Users
 } = require("../models/users");
+const logger = require("../utils/logger");
 
 
 
 exports.getUsersById = async (id) => {
+  logger.info('get users by id requested');
   try {
     let filter = {};
     if (id !== undefined) {
       filter._id = id;
     }
     const results = await Users.find(filter);
+    logger.info('users by id returned', results);
     return results
   } catch (error) {
-    console.log('error while getting users', error)
+    logger.info('error while getting users', error)
   }
 }
 
 exports.deleteUsersById = async (id) => {
+  logger.info('delete users by id requested');
   try {
     let filter = {};
     if (id !== undefined) {
@@ -27,6 +31,6 @@ exports.deleteUsersById = async (id) => {
     const results = await Users.findByIdAndDelete(filter);
     return results
   } catch (error) {
-    console.log('error while deleting users', error)
+    logger.info('error while deleting users', error)
   }
 }
