@@ -2,8 +2,10 @@
 const {
   Authors
 } = require("../models/authors");
+const logger = require("../utils/logger");
 
 exports.getAuthorById = async (id) => {
+  logger.info('get author by id requested');
   try {
     let filter = {};
     if (id !== undefined) {
@@ -12,11 +14,12 @@ exports.getAuthorById = async (id) => {
     const results = await Authors.find(filter);
     return results
   } catch (error) {
-    console.log('error while getting authors', error)
+    logger.info('error while getting authors', error)
   }
 }
 
 exports.getAuthorByName = async (author) => {
+  logger.info('get author by name requested');
   try {
     const existentAuthor = await Authors.find({
       name: author.name
@@ -35,13 +38,14 @@ exports.getAuthorByName = async (author) => {
       }
     }
   } catch (error) {
-    console.log('error while getting authors', error)
+    logger.info('error while getting authors', error)
     throw Error(err);
   }
 }
 
 
 exports.saveAuthor = async (author) => {
+  logger.info('save author requested');
   // validate if the Author already exists
   const existentAuthor = await Authors.find({
     name: author.name
@@ -54,23 +58,24 @@ exports.saveAuthor = async (author) => {
     };
   } else {
     const newAuthor = new Authors(author);
-    console.log('author to be saved', author);
+    logger.info('author to be saved', author);
     return await newAuthor.save()
       .then((result) => {
-        console.log('the Author has been saved ', result);
+        logger.info('the Author has been saved ', result);
         return {
           error: false,
           author: result
         };
       })
       .catch((err) => {
-        console.log('error saving the Author data: ', err)
+        logger.info('error saving the Author data: ', err)
         throw Error(err);
       })
   }
 }
 
 exports.removeArticlesInAuthor = async (authorId, existentElement) => {
+  logger.info('remove articles in Author requested');
   return await Authors.updateMany({
     "_id": authorId
   }, {
@@ -84,6 +89,7 @@ exports.removeArticlesInAuthor = async (authorId, existentElement) => {
 }
 
 exports.addArticlesInAuthor = async (authorId, newElement) => {
+  logger.info('add articles in  author requested');
   return await Authors.updateOne({
     "_id": authorId
   }, {
@@ -98,43 +104,44 @@ exports.addArticlesInAuthor = async (authorId, newElement) => {
 
 
 exports.updateAuthor = async (id, author) => {
-  console.log('validating id', id);
+  logger.info('update author requested');
   return await Authors.findByIdAndUpdate({
       _id: id
     }, author, {
       new: true
     })
     .then((result) => {
-      console.log('the author has been updated ', result);
+      logger.info('the author has been updated ', result);
       return {
         status: true,
         author: result
       };
     })
     .catch((err) => {
-      console.log('error updating the author data: ', err)
+      logger.info('error updating the author data: ', err)
       throw Error(err);
     })
 }
 
 
 exports.deleteAuthor = async (id) => {
+  logger.info('delete author requested');
   // find the article
   const authors = await Authors.find({
     _id: id
   });
-  console.log('authors found to be deletd', authors);
+  logger.info('authors found to be deletd', authors);
   if (authors && authors.length > 0) {
     articleId = authors[0]._id
     return await Authors.findByIdAndDelete({
         _id: id
       })
       .then((result) => {
-        console.log('the Author has been deleted ', result);
+        logger.info('the Author has been deleted ', result);
         return true;
       })
       .catch((err) => {
-        console.log('error deleting the Author data: ', err)
+        logger.info('error deleting the Author data: ', err)
         throw Error(err);
       })
   } else {
